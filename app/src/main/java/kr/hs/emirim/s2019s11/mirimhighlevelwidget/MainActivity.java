@@ -17,7 +17,7 @@ import android.widget.TimePicker;
 
 public class MainActivity extends AppCompatActivity {
     RadioButton radioDate, radioTime;
-    DatePicker calendar1;
+    DatePicker datePick;
     TimePicker timePick;
     Chronometer chrono;
     TextView textResult;
@@ -28,17 +28,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_reservation);
         radioDate = findViewById(R.id.radio_date);
         radioTime = findViewById(R.id.radio_time);
-        calendar1 = findViewById(R.id.calendar1);
+        datePick = findViewById(R.id.date_pick);
         timePick = findViewById(R.id.time_pick);
         radioDate.setOnClickListener(radioListener);
         radioTime.setOnClickListener(radioListener);
         chrono = findViewById(R.id.chrono1);
         textResult = findViewById(R.id.text_result);
-        Button btnStart = findViewById(R.id.btn_start);
-        Button btnStop = findViewById(R.id.btn_stop);
-        btnStart.setOnClickListener(btnListener);
-        btnStop.setOnClickListener(btnListener);
-        calendar1.setOnClickListener(btnListener);
+        chrono.setOnClickListener(chronoListener);
+        textResult.setOnLongClickListener(textListener);
+        radioDate.setVisibility(View.INVISIBLE);
+        radioTime.setVisibility(View.INVISIBLE);
+        datePick.setVisibility(View.INVISIBLE);
+        timePick.setVisibility(View.INVISIBLE);
     }
 
     View.OnClickListener radioListener = new View.OnClickListener() {
@@ -46,40 +47,40 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.radio_date:
-                    calendar1.setVisibility(View.VISIBLE);
+                    datePick.setVisibility(View.VISIBLE);
                     timePick.setVisibility(View.INVISIBLE);
                     break;
                 case R.id.radio_time:
                     timePick.setVisibility(View.VISIBLE);
-                    calendar1.setVisibility(View.INVISIBLE);
+                    datePick.setVisibility(View.INVISIBLE);
                     break;
             }
         }
     };
 
-    View.OnClickListener btnListener = new View.OnClickListener() {
+    View.OnClickListener chronoListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.btn_start:
-                    chrono.setBase(SystemClock.elapsedRealtime());
-                    chrono.start();
-                    chrono.setTextColor(Color.RED);
-                    break;
-                case R.id.btn_stop:
-                    chrono.stop();
-                    chrono.setTextColor(Color.BLUE);
-                    textResult.setText(timePick.getCurrentHour() + "시 " + timePick.getCurrentMinute() + "분");
-                    break;
-            }
+            chrono.setBase(SystemClock.elapsedRealtime());
+            chrono.start();
+            chrono.setTextColor(Color.RED);
+            radioDate.setVisibility(View.VISIBLE);
+            radioTime.setVisibility(View.VISIBLE);
         }
     };
 
-    String dateStr = "";
-    CalendarView.OnDateChangeListener calendarListener = new CalendarView.OnDateChangeListener() {
+    View.OnLongClickListener textListener = new View.OnLongClickListener() {
         @Override
-        public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-            dateStr = year + "년 " + (month+1) + "월 " + dayOfMonth + "일 ";
+        public boolean onLongClick(View v) {
+            chrono.stop();
+            chrono.setTextColor(Color.BLUE);
+            textResult.setText(datePick.getYear() + "년 " + (datePick.getMonth()+1) + "월 " +
+                    datePick.getDayOfMonth() + "일 " + timePick.getCurrentHour() + "시 " + timePick.getCurrentMinute() + "분");
+            radioDate.setVisibility(View.INVISIBLE);
+            radioTime.setVisibility(View.INVISIBLE);
+            datePick.setVisibility(View.INVISIBLE);
+            timePick.setVisibility(View.INVISIBLE);
+            return false; // 기본 행동을 취소시킴 (복사, 이미지 다운로드 등)
         }
     };
 }
